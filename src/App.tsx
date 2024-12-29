@@ -2,24 +2,32 @@ import Todos from "@/components/Todos";
 import { TodoProvider } from "@/contexts/TodoContext.ts";
 import { useEffect, useState } from "react";
 
-function App() {
-	const [todos, setTodos] = useState([]);
+type Todo = {
+	id: string;
+	todo: string; // Adjust this based on your actual todo structure
+	completed: boolean;
+};
 
-	const addTodo = (todo) => {
-		setTodos((prev) => [{ id: Date.now(), ...todo }, ...prev]);
+function App() {
+	const [todos, setTodos] = useState<Todo[]>([]);
+
+	const addTodo = (todo: Omit<Todo, "id">) => {
+		setTodos((prev) => [{ id: Date.now().toString(), ...todo }, ...prev]);
 	};
 
-	const editTodo = (id, todo) => {
+	const editTodo = (id: string, updatedTodo: Omit<Todo, "id">) => {
 		setTodos((prev) =>
-			prev.map((prevTodo) => (prevTodo.id === id ? todo : prevTodo))
+			prev.map(
+				(prevTodo) => (prevTodo.id === id ? { ...updatedTodo, id } : prevTodo) // Include the id in the updated todo
+			)
 		);
 	};
 
-	const deleteTodo = (id) => {
+	const deleteTodo = (id: string) => {
 		setTodos((prev) => prev.filter((prevTodo) => prevTodo.id !== id));
 	};
 
-	const toggleComplete = (id) => {
+	const toggleComplete = (id: string) => {
 		setTodos((prev) =>
 			prev.map((prevTodo) =>
 				prevTodo.id === id
@@ -30,13 +38,13 @@ function App() {
 	};
 
 	useEffect(() => {
-		const todos = JSON.parse(localStorage.getItem("todos"));
-		if (todos && todos.length > 0) setTodos(todos);
+		const storedTodos = localStorage.getItem("todos"); // Get the item from localStorage
+		if (storedTodos) {
+			// Check if storedTodos is not null
+			const todos = JSON.parse(storedTodos); // Now it's safe to parse
+			if (todos && todos.length > 0) setTodos(todos);
+		}
 	}, []);
-
-	useEffect(() => {
-		localStorage.setItem("todos", JSON.stringify(todos));
-	}, [todos]);
 
 	return (
 		<TodoProvider
