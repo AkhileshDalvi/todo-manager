@@ -7,7 +7,7 @@ const TodoForm = () => {
 	const [todo, setTodo] = useState("");
 	const { addTodo } = useTodo();
 
-	const add = (e) => {
+	const add = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!todo) return;
